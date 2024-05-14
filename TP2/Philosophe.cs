@@ -14,24 +14,31 @@ namespace TP2
         public Thread t;
         Semaphore fourchette_g;
         Semaphore fourchette_d;
-        public bool OK = true;
+        bool OK = true;
         TextBox box;
-        Graphics g;
-        Form1 F;
+		Panel panel;
+		Form1 F;
         int i;
-        public Philosophe(Semaphore fourchette_g, Semaphore fourchette_d, Graphics g, int i, TextBox box, Form1 F)
+
+        public Philosophe(Semaphore fourchette_g, Semaphore fourchette_d, Panel panel, int i, TextBox box, Form1 F)
         {
             this.fourchette_d = fourchette_d;
             this.fourchette_g = fourchette_g;
             this.box = box;
-            this.F = F;
             this.i = i;
-            this.g = g;
+            this.panel = panel;
+            this.F = F;
             TextBox.CheckForIllegalCrossThreadCalls = false;
             t = new Thread(CodeThread);
             t.Start();
         }
-        void CodeThread()
+
+		public void Stop()
+		{
+			OK = false;
+		}
+
+		void CodeThread()
         {
             while (OK)
             {
@@ -39,16 +46,16 @@ namespace TP2
                 box.Text = "Penser";
                 Thread.Sleep(1000);
                 fourchette_d.WaitOne();
-                lock (g)
-                {
+				fourchette_g.WaitOne();
+				//Manger
+				box.Text = "Manger";
+				using (Graphics g = panel.CreateGraphics())
+				{
                     //Assiettes
                     g.FillEllipse(Brushes.Red, (float)(F.R * Math.Cos(2 * i * Math.PI / 5) + F.X0 - F.X0 / (F.tailleA * 2)), (float)(F.R * Math.Sin(2 * i * Math.PI / 5) + F.Y0 - F.Y0 / (2 * F.tailleA)), F.X0 / F.tailleA, F.Y0 / F.tailleA);
                     //Baguettes
                     g.FillEllipse(Brushes.Red, (float)(F.R * Math.Cos(2 * i * Math.PI / 5) + F.X0 - F.X0 / (F.tailleBH * 2)), (float)(F.R * Math.Sin(2 * i * Math.PI / 5) + F.Y0 - F.Y0 / (2 * F.tailleBH)), F.X0 / (F.tailleBE), F.Y0 / (3 * F.tailleBE));
                 }
-                fourchette_g.WaitOne();
-                //Manger
-                box.Text = "Manger";
                 Thread.Sleep(1000);
                 fourchette_d.Release();
                 fourchette_g.Release();
