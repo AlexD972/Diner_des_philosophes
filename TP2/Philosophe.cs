@@ -20,7 +20,12 @@ namespace TP2
 		Form1 F;
         int i;
 
-        public Philosophe(Semaphore fourchette_g, Semaphore fourchette_d, Panel panel, int i, TextBox box, Form1 F)
+		//Brush
+		public SolidBrush redBrush = new SolidBrush(Color.DarkRed);
+		public SolidBrush whiteBrush = new SolidBrush(Color.White);
+		public SolidBrush tanBrush = new SolidBrush(Color.Tan);
+
+		public Philosophe(Semaphore fourchette_g, Semaphore fourchette_d, Panel panel, int i, TextBox box, Form1 F)
         {
             this.fourchette_d = fourchette_d;
             this.fourchette_g = fourchette_g;
@@ -44,7 +49,14 @@ namespace TP2
             {
                 //Penser
                 box.Text = "Penser";
-                Thread.Sleep(1000);
+				using (Graphics g = panel.CreateGraphics())
+				{
+					//Assiettes
+					g.FillEllipse(whiteBrush, (float)(F.R * Math.Cos(2 * i * Math.PI / 5) + F.X0 - F.X0 / (F.tailleA * 2)), (float)(F.R * Math.Sin(2 * i * Math.PI / 5) + F.Y0 - F.Y0 / (2 * F.tailleA)), F.X0 / F.tailleA, F.Y0 / F.tailleA);
+					//Baguettes
+					g.FillEllipse(tanBrush, (float)(F.R * Math.Cos(2 * i * Math.PI / 5) + F.X0 - F.X0 / (F.tailleBH * 2)), (float)(F.R * Math.Sin(2 * i * Math.PI / 5) + F.Y0 - F.Y0 / (2 * F.tailleBH)), F.X0 / (F.tailleBE), F.Y0 / (3 * F.tailleBE));
+				}
+				Thread.Sleep(1000);
                 fourchette_d.WaitOne();
 				fourchette_g.WaitOne();
 				//Manger
